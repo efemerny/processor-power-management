@@ -2,12 +2,14 @@ import os
 import sys
 import winreg
 import design
-import ctypes
 import subprocess
 import qdarktheme
 from elevate import elevate
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import *
+
+# GLOBAL PARAMETERS
+CREATE_NO_WINDOW = 0x08000000
 
 
 # Создание каталога и файла cfg
@@ -47,7 +49,6 @@ def delete_duplicates():
             break
 
 
-
 # Изменение параметра реестра на нужный
 def get_reg_info():
     l_key_val = r'SYSTEM\\CurrentControlSet\\Control\\Power\\PowerSettings\\54533251-82be-4824-96c1-47b60b740d00\\be337238-0d82-4146-a960-4f3749d470c7'
@@ -64,7 +65,9 @@ def get_reg_info():
 # Получение информации с консоли
 def get_console_info():
     # Кодировка консоли
-    l_encoding = ctypes.windll.kernel32.GetConsoleOutputCP()
+    # l_encoding = windll.kernel32.GetConsoleOutputCP()
+    l_encoding = str(subprocess.Popen("chcp", shell=True, stdout=subprocess.PIPE, text=True).stdout.read()).split()
+
     # Вызов нужной команды
     l_call = subprocess.Popen(["powercfg", "/query",
                                "381b4222-f694-41f0-9685-ff5bb260df2e",
@@ -73,7 +76,8 @@ def get_console_info():
                               stdout=subprocess.PIPE,
                               stderr=subprocess.PIPE,
                               text=True,
-                              encoding=str(l_encoding))
+                              shell=True,
+                              encoding=l_encoding[-1])
 
     l_output, l_errors = l_call.communicate()
 
@@ -96,13 +100,15 @@ def get_console_info():
 
 
 def set_power_parameter(p_charger):
-    os.system(f"Powercfg -setacvalueindex scheme_current sub_processor PERFBOOSTMODE {p_charger}")
-    os.system("Powercfg -setactive scheme_current")
+    subprocess.call(f"Powercfg -setacvalueindex scheme_current sub_processor PERFBOOSTMODE {p_charger}",
+                    creationflags=CREATE_NO_WINDOW)
+    subprocess.call("Powercfg -setactive scheme_current", creationflags=CREATE_NO_WINDOW)
 
 
 def run_programs():
     for program in get_programs_from_file():
         os.startfile(f"{program}")
+
 
 class PBMapp(QtWidgets.QMainWindow, design.Ui_MainWindow):
     def __init__(self):
@@ -153,7 +159,7 @@ class PBMapp(QtWidgets.QMainWindow, design.Ui_MainWindow):
 
     def set_boost_off(self):
         set_power_parameter(0)
-        #    for process in (process for process in psutil.process_iter() if
+        #    for process in (prфгocess for process in psutil.process_iter() if
         #                   process.name() == "Ryzen Controller.exe"): process.kill()
         self.check_setting_status()
 
@@ -197,6 +203,7 @@ class PBMapp(QtWidgets.QMainWindow, design.Ui_MainWindow):
                     file.writelines(program + "\n")
 
         self.show_programs(get_programs_from_file())
+
 
 def main():
     elevate(show_console=False)  # Выдаем права администратора
