@@ -159,7 +159,7 @@ class PBMapp(QtWidgets.QMainWindow, design.Ui_MainWindow):
 
     def set_boost_off(self):
         set_power_parameter(0)
-        #    for process in (prфгocess for process in psutil.process_iter() if
+        #    for process in (process for process in psutil.process_iter() if
         #                   process.name() == "Ryzen Controller.exe"): process.kill()
         self.check_setting_status()
 
