@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'design\mainwindowsdesign.ui'
+# Form implementation generated from reading ui file 'design/mainwindowsdesign.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #
@@ -110,7 +110,7 @@ class Ui_MainWindow(object):
         self.label_path.setObjectName("label_path")
         self.gridLayout_2.addWidget(self.label_path, 0, 0, 1, 1)
         self.verticalLayoutWidget_3 = QtWidgets.QWidget(self.centralwidget)
-        self.verticalLayoutWidget_3.setGeometry(QtCore.QRect(10, 10, 311, 80))
+        self.verticalLayoutWidget_3.setGeometry(QtCore.QRect(10, 10, 261, 80))
         self.verticalLayoutWidget_3.setObjectName("verticalLayoutWidget_3")
         self.verticalLayout_6 = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_3)
         self.verticalLayout_6.setContentsMargins(0, 0, 0, 0)
@@ -141,6 +141,49 @@ class Ui_MainWindow(object):
         self.line.setFrameShape(QtWidgets.QFrame.HLine)
         self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.line.setObjectName("line")
+        self.verticalLayoutWidget_2 = QtWidgets.QWidget(self.centralwidget)
+        self.verticalLayoutWidget_2.setGeometry(QtCore.QRect(277, 5, 151, 86))
+        self.verticalLayoutWidget_2.setObjectName("verticalLayoutWidget_2")
+        self.verticalLayout = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_2)
+        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout.setObjectName("verticalLayout")
+        self.label_processor_title = QtWidgets.QLabel(self.verticalLayoutWidget_2)
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.label_processor_title.setFont(font)
+        self.label_processor_title.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_processor_title.setObjectName("label_processor_title")
+        self.verticalLayout.addWidget(self.label_processor_title)
+        self.label_proc_load = QtWidgets.QLabel(self.verticalLayoutWidget_2)
+        font = QtGui.QFont()
+        font.setPointSize(18)
+        font.setBold(True)
+        font.setWeight(75)
+        self.label_proc_load.setFont(font)
+        self.label_proc_load.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_proc_load.setObjectName("label_proc_load")
+        self.verticalLayout.addWidget(self.label_proc_load)
+        self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_2.setSpacing(5)
+        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        self.progressBar_proc = QtWidgets.QProgressBar(self.verticalLayoutWidget_2)
+        self.progressBar_proc.setStyleSheet("#progressBar_proc::chunk {\n"
+                                            "    background-color: #2196F3;\n"
+                                            "    width: 10px; \n"
+                                            "    margin: 0.5px;\n"
+                                            "     border-radius: 2px;\n"
+                                            "}")
+        self.progressBar_proc.setMaximum(125)
+        self.progressBar_proc.setProperty("value", 24)
+        self.progressBar_proc.setTextVisible(False)
+        self.progressBar_proc.setInvertedAppearance(True)
+        self.progressBar_proc.setObjectName("progressBar_proc")
+        self.horizontalLayout_2.addWidget(self.progressBar_proc)
+        self.label_proc_temp = QtWidgets.QLabel(self.verticalLayoutWidget_2)
+        self.label_proc_temp.setAlignment(QtCore.Qt.AlignJustify | QtCore.Qt.AlignVCenter)
+        self.label_proc_temp.setObjectName("label_proc_temp")
+        self.horizontalLayout_2.addWidget(self.label_proc_temp)
+        self.verticalLayout.addLayout(self.horizontalLayout_2)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 450, 19))
@@ -167,3 +210,6 @@ class Ui_MainWindow(object):
         self.label_main.setText(_translate("MainWindow", "You can control the CPU boost power"))
         self.label_status.setText(_translate("MainWindow", "Current boost status:"))
         self.label_status_value.setText(_translate("MainWindow", "TextLabel"))
+        self.label_processor_title.setText(_translate("MainWindow", "Processor"))
+        self.label_proc_load.setText(_translate("MainWindow", "  76%"))
+        self.label_proc_temp.setText(_translate("MainWindow", "24 C"))

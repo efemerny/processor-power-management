@@ -4,12 +4,19 @@ import winreg
 import design
 import subprocess
 import qdarktheme
+from time import sleep
 from elevate import elevate
-from PyQt5 import QtWidgets, QtGui, QtCore
-from PyQt5.QtWidgets import *
+from pyspectator.processor import Cpu
+from PyQt5 import QtWidgets, QtGui
+from PyQt5.Qt import *
+from PyQt5.QtCore import QThread, pyqtSignal, QTimer
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QProgressBar, QPushButton, \
+    QMainWindow, QLabel
 
 # GLOBAL PARAMETERS
 CREATE_NO_WINDOW = 0x08000000
+
+cpu = Cpu(monitoring_latency=1)
 
 
 # Создание каталога и файла cfg
@@ -110,6 +117,16 @@ def run_programs():
         os.startfile(f"{program}")
 
 
+class ProcWidgets(QThread):
+    valueChanged = pyqtSignal(int, float)  # сигнал изменения значения
+
+    def run(self):
+        with cpu:
+            while True:
+                self.valueChanged.emit(cpu.temperature, cpu.load)
+                QThread.msleep(100)
+
+
 class PBMapp(QtWidgets.QMainWindow, design.Ui_MainWindow):
     def __init__(self):
         # Это здесь нужно для доступа к переменным, методам
@@ -126,6 +143,14 @@ class PBMapp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         self.check_setting_status()
         delete_duplicates()
         self.show_programs(get_programs_from_file())
+
+        # Обновление статистики по нагрузке и температуре процессора
+        # Дочерний поток
+        self._thread = ProcWidgets(self)
+        self._thread.valueChanged.connect(self.changeWidgets)
+
+        # Таймер однократного срабатывания срабатывает только один раз
+        QTimer.singleShot(100, self.onStart)  # <-----
 
     def show_msgbox(self, p_path):
         msg = QMessageBox()
@@ -204,6 +229,28 @@ class PBMapp(QtWidgets.QMainWindow, design.Ui_MainWindow):
 
         self.show_programs(get_programs_from_file())
 
+    def changeWidgets(self, p_temp_value, p_load_value):
+        self.label_proc_temp.setText(str(p_temp_value) + ' °C')
+        self.progressBar_proc.setValue(p_temp_value)
+        if p_temp_value >= 60:
+            self.progressBar_proc.setStyleSheet("#progressBar_proc::chunk {background-color: #ff672b; width: 10px; "
+                                                "margin: 0.5px;border-radius: 2px;}")
+        elif p_temp_value >= 85:
+            self.progressBar_proc.setStyleSheet("#progressBar_proc::chunk {background-color: #dd0000; width: 10px; "
+                                                "margin: 0.5px;border-radius: 2px;}")
+        else:
+            self.progressBar_proc.setStyleSheet("#progressBar_proc::chunk {background-color: #2196F3; width: 10px; "
+                                                "margin: 0.5px;border-radius: 2px;}")
+        self.label_proc_load.setText(str(round(p_load_value)) + '%')
+
+    def onStart(self):
+        # Начать дочерний поток
+        self._thread.start()
+
+    def closeEvent(self, event):
+        self._thread.terminate()
+        self._thread = None
+
 
 def main():
     elevate(show_console=False)  # Выдаем права администратора
@@ -217,3 +264,6 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+# ui into py pyuic5 name.ui -o name.py
+# pyinstaller -F -w -i="cpu.ico"  main.py -n="PBM" --add-data="cpu.png"
