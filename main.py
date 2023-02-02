@@ -1,17 +1,16 @@
 import os
 import sys
+import ctypes
 import winreg
 import design
 import subprocess
 import qdarktheme
-from time import sleep
-from elevate import elevate
+from pathlib import Path
+from pixmaps import qImage
 from pyspectator.processor import Cpu
 from PyQt5 import QtWidgets, QtGui
-from PyQt5.Qt import *
 from PyQt5.QtCore import QThread, pyqtSignal, QTimer
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QProgressBar, QPushButton, \
-    QMainWindow, QLabel
+from PyQt5.QtWidgets import QFileDialog, QMessageBox
 
 # GLOBAL PARAMETERS
 CREATE_NO_WINDOW = 0x08000000
@@ -21,11 +20,13 @@ cpu = Cpu(monitoring_latency=1)
 
 # Создание каталога и файла cfg
 def get_config_path():
-    l_filename = os.getenv("SystemDrive") + '/USERS/' + os.getlogin() + '/Documents' + '/PBM' '/cfg.txt'
+    l_filename = os.getenv("SystemDrive") + '/USERS/' + os.getlogin() + '/Documents' + '/PBM' + '/cfg.txt'
 
     if not os.path.exists(os.path.dirname(l_filename)):
         l_dir_name = os.path.dirname(l_filename)
         os.makedirs(l_dir_name)
+
+    Path(l_filename).touch(exist_ok=True)
 
     return l_filename
 
@@ -157,8 +158,10 @@ class PBMapp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         msg.setWindowTitle("Error. Duplicate found")
         msg.setText(f"{p_path}\nThis program path has already been selected by you")
         msg.setIcon(QMessageBox.Information)
-
-        x = msg.exec_()
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(QtGui.QPixmap.fromImage(qImage)), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        msg.setWindowIcon(icon)
+        msg.exec_()
 
     def show_programs(self, p_list_programs):
         self.listview_model.clear()
@@ -253,7 +256,6 @@ class PBMapp(QtWidgets.QMainWindow, design.Ui_MainWindow):
 
 
 def main():
-    elevate(show_console=False)  # Выдаем права администратора
     get_reg_info()  # Установка параметра реестра
     app = QtWidgets.QApplication(sys.argv)  # Новый экземпляр QApplication\
     main_window = PBMapp()
@@ -263,7 +265,10 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    if ctypes.windll.shell32.IsUserAnAdmin():
+        main()
+    else:
+        ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, __file__, None, 0)
 
 # ui into py pyuic5 name.ui -o name.py
-# pyinstaller -F -w -i="cpu.ico"  main.py -n="PBM" --add-data="cpu.png"
+# pyinstaller -F -w -i="cpu.ico" main.py -n="PBM"
